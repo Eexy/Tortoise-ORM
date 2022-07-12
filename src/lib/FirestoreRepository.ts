@@ -5,11 +5,8 @@ import {
   FirestoreDocResponse,
   FirestoreDocsResponse,
 } from "../types/FirestoreResponse";
-import {
-  Condition,
-  TortoiseClauses,
-  TortoiseQuery,
-} from "../types/TortoiseClauses";
+import { TortoiseClauses } from "../types/TortoiseClauses";
+import { buildQueries } from "./buildQueries";
 import App = firebase.app.App;
 import CollectionReference = firebase.firestore.CollectionReference;
 import Query = firebase.firestore.Query;
@@ -73,43 +70,6 @@ export class FirestoreRepository<T> {
     }
   }
 
-  static isNestedWhereClauses(obj: Object): boolean {
-    for (const key of Object.keys(obj)) {
-      if (key !== "cond" && key !== "value") {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  static BuildQueries<T>(where: Record<string, TortoiseClauses<T>>): TortoiseQuery[] {
-    const queries: TortoiseQuery[] = [];
-
-    for (const [key, entry] of Object.entries(where)) {
-      if (entry !== undefined) {
-        if (typeof entry !== "object" || entry === null) {
-          queries.push({ path: key, cond: "==", value: entry });
-        } else {
-          if (this.isNestedWhereClauses(entry)) {
-            const subQueries: TortoiseQuery[] = this.BuildQueries(where[key] as any);
-            for (const query of subQueries) {
-              query.path = `${key}.${query.path}`;
-            }
-            queries.push(...subQueries);
-          }
-          const cond = entry as unknown as Condition;
-          if (cond.value !== undefined) {
-            queries.push({ path: key, cond: cond.cond, value: cond.value });
-          }
-        }
-      }
-    }
-
-    return queries;
-  }
-
-
   async findByUid(uid: string): Promise<FirestoreDocResponse<T>> {
     const res = await this.app.firestore().collection(this.collection).doc(uid).get();
 
@@ -125,7 +85,7 @@ export class FirestoreRepository<T> {
              limit?: number,
              orderBy?: [string, OrderByDirection]): Promise<FirestoreDocsResponse<T>> {
     let collectionRes: CollectionReference | Query = this.app.firestore().collection(this.collection);
-    const queries = FirestoreRepository.BuildQueries(where as any);
+    const queries = buildQueries<T>(where as any);
 
     for (const query of queries) {
       collectionRes = collectionRes.where(query.path, query.cond, query.value);
