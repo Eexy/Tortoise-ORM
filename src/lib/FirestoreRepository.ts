@@ -13,6 +13,7 @@ import {
 import App = firebase.app.App;
 import CollectionReference = firebase.firestore.CollectionReference;
 import Query = firebase.firestore.Query;
+import OrderByDirection = firebase.firestore.OrderByDirection;
 
 export class FirestoreRepository<T> {
   readonly collection: string;
@@ -120,13 +121,20 @@ export class FirestoreRepository<T> {
     return { doc, err: null };
   }
 
-  async find(where: TortoiseClauses<T>): Promise<FirestoreDocsResponse<T>> {
+  async find(where: TortoiseClauses<T>,
+             limit?: number,
+             orderBy?: [string, OrderByDirection]): Promise<FirestoreDocsResponse<T>> {
     let collectionRes: CollectionReference | Query = this.app.firestore().collection(this.collection);
     const queries = FirestoreRepository.BuildQueries(where as any);
 
     for (const query of queries) {
       collectionRes = collectionRes.where(query.path, query.cond, query.value);
     }
+
+    if (orderBy) collectionRes.orderBy(orderBy[0], orderBy[1]);
+
+    if (limit) collectionRes = collectionRes.limit(limit);
+
 
     try {
       const snaps = await collectionRes.get();
@@ -144,8 +152,9 @@ export class FirestoreRepository<T> {
     }
   }
 
-  async findOne(where: TortoiseClauses<T>): Promise<FirestoreDocResponse<T>> {
-    const { docs, err } = await this.find(where);
+  async findOne(where: TortoiseClauses<T>,
+                orderBy?: [string, OrderByDirection]): Promise<FirestoreDocResponse<T>> {
+    const { docs, err } = await this.find(where, undefined, orderBy);
 
     if (err && docs) {
       return { doc: null, err };
