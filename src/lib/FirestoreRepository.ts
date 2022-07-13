@@ -56,7 +56,6 @@ export class FirestoreRepository<T> {
     return typeof data === "object";
   }
 
-
   async delete(uid: string): Promise<boolean> {
     await this.app.firestore().collection(this.collection).doc(uid).delete();
 
@@ -66,6 +65,11 @@ export class FirestoreRepository<T> {
   async update(updates: Partial<T>,
                uid: string): Promise<FirestoreDocResponse<T>> {
     const ref = this.app.firestore().collection(this.collection).doc(uid);
+    const data = await ref.get();
+
+    if (!data.exists) {
+      return { doc: null, err: "Invalid update. Document doesn't exist" };
+    }
 
     if (this.isValidDocFormat(updates)) {
       return {
