@@ -7,6 +7,7 @@ import {
 } from "../types/FirestoreResponse";
 import { TortoiseClauses } from "../types/TortoiseClauses";
 import { buildQueries } from "./buildQueries";
+import { sanitizeData } from "./sanitizeData";
 import App = firebase.app.App;
 import CollectionReference = firebase.firestore.CollectionReference;
 import Query = firebase.firestore.Query;
@@ -27,7 +28,7 @@ export class FirestoreRepository<T> {
     const ref = this.app.firestore().collection(this.collection).doc(uid);
 
     try {
-      await ref.set(FirestoreRepository.sanitizeData(data));
+      await ref.set(sanitizeData(data));
       const res = await ref.get();
       const doc = { uid: ref.id, ...res.data() } as T & FirestoreDocument;
       return { doc, err: null };
@@ -43,19 +44,6 @@ export class FirestoreRepository<T> {
     }
   }
 
-  private static sanitizeData(data: Record<string, any>): Record<string, any> {
-    if (Array.isArray(data) || data === undefined) throw Error("Data must be an object");
-
-    const sanitizedData: Record<string, any> = {};
-
-    for (const [key, entry] of Object.entries(data)) {
-      if (entry !== undefined) {
-        sanitizedData[key] = entry;
-      }
-    }
-
-    return sanitizedData;
-  }
 
   async delete(uid: string): Promise<boolean> {
     await this.app.firestore().collection(this.collection).doc(uid).delete();
@@ -68,7 +56,7 @@ export class FirestoreRepository<T> {
     const ref = this.app.firestore().collection(this.collection).doc(uid);
 
     try {
-      await ref.update(FirestoreRepository.sanitizeData(updates));
+      await ref.update(sanitizeData(updates));
       const res = await ref.get();
       const doc = { uid: ref.id, ...res.data() } as T & FirestoreDocument;
       return { doc, err: null };
