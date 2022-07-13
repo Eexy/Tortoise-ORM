@@ -28,23 +28,20 @@ export class FirestoreRepository<T> {
     const ref = this.app.firestore().collection(this.collection).doc(uid);
 
     if (this.isValidDocFormat(data)) {
-      return { doc: null, err: "Invalid data format. Data must be an object" };
+      return [null, "Invalid data format. Data must be an object"];
     }
 
     try {
       await ref.set(sanitizeData(data));
       const res = await ref.get();
       const doc = { uid: ref.id, ...res.data() } as T & FirestoreDocument;
-      return { doc, err: null };
+      return [doc, null];
     } catch (e) {
       if (e instanceof Error) {
-        return { doc: null, err: e.message };
+        return [null, e.message];
       }
 
-      return {
-        doc: null,
-        err: "An error has occurred. Unable to create document",
-      };
+      return [null, "An error has occurred. Unable to create document"];
     }
   }
 
@@ -68,30 +65,24 @@ export class FirestoreRepository<T> {
     const data = await ref.get();
 
     if (!data.exists) {
-      return { doc: null, err: "Invalid update. Document doesn't exist" };
+      return [null, "Invalid update. Document doesn't exist"];
     }
 
     if (this.isValidDocFormat(updates)) {
-      return {
-        doc: null,
-        err: "Invalid updates format. Updates must be an object",
-      };
+      return [null, "Invalid updates format. Updates must be an object"];
     }
 
     try {
       await ref.update(sanitizeData(updates));
       const res = await ref.get();
       const doc = { uid: ref.id, ...res.data() } as T & FirestoreDocument;
-      return { doc, err: null };
+      return [doc, null];
     } catch (e) {
       if (e instanceof Error) {
-        return { doc: null, err: e.message };
+        return [null, e.message];
       }
 
-      return {
-        doc: null,
-        err: "An error has occurred. Unable to update document",
-      };
+      return [null, "An error has occurred. Unable to update document"];
     }
   }
 
@@ -99,11 +90,11 @@ export class FirestoreRepository<T> {
     const res = await this.app.firestore().collection(this.collection).doc(uid).get();
 
     if (res.exists) {
-      return { doc: null, err: `Document ${uid} doesn't exist` };
+      return [null, `Document ${uid} doesn't exist`];
     }
 
     const doc = { uid: res.id, ...res.data() } as T & FirestoreDocument;
-    return { doc, err: null };
+    return [doc, null];
   }
 
   async find(where: TortoiseClauses<T>,
@@ -124,35 +115,32 @@ export class FirestoreRepository<T> {
     try {
       const snaps = await collectionRes.get();
       const docs = snaps.docs.map(doc => ({ uid: doc.id, ...doc.data() })) as (T & FirestoreDocument)[];
-      return { docs, err: null };
+      return [docs, null];
     } catch (e) {
       if (e instanceof Error) {
-        return { docs: null, err: e.message };
+        return [null, e.message];
       }
 
-      return {
-        docs: null,
-        err: "An error has occurred. Unable to fetch documents",
-      };
+      return [null, "An error has occurred. Unable to fetch documents"];
     }
   }
 
   async findOne(where: TortoiseClauses<T>,
                 orderBy?: [string, OrderByDirection]): Promise<FirestoreDocResponse<T>> {
-    const { docs, err } = await this.find(where, undefined, orderBy);
+    const [docs, err] = await this.find(where, undefined, orderBy);
 
-    if (err && docs) {
-      return { doc: null, err };
+    if (err && !docs) {
+      return [null, err];
     }
 
     if (!docs) {
-      return { doc: {} as (T & FirestoreDocument), err: null };
+      return [{} as (T & FirestoreDocument), null];
     }
 
     if (!docs.length) {
-      return { doc: {} as (T & FirestoreDocument), err: null };
+      return [{} as (T & FirestoreDocument), null];
     }
 
-    return { doc: docs[0], err: null };
+    return [docs[0], null];
   }
 }

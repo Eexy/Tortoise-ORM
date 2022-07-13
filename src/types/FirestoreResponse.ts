@@ -1,11 +1,15 @@
 import { FirestoreDocument } from "./FirestoreDocument";
 
-export interface FirestoreDocResponse<T> {
-  doc: T & FirestoreDocument | null;
-  err: string | null;
-}
+export type FirestoreDocResponse<T> =
+  FirestoreSuccessDocResponse<T>
+  | FirestoreFailedResponse
 
-export interface FirestoreDocsResponse<T> {
-  docs: (T & FirestoreDocument)[] | null;
-  err: string | null;
-}
+export type FirestoreDocsResponse<T> =
+  FirestoreSuccessDocsResponse<T>
+  | FirestoreFailedResponse
+
+export type FirestoreSuccessDocResponse<T> = [T & FirestoreDocument, null]
+
+export type FirestoreFailedResponse = [null, string]
+
+export type FirestoreSuccessDocsResponse<T> = [(T & FirestoreDocument)[], null]
