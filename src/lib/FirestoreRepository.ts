@@ -1,5 +1,5 @@
 import { FirestoreDocument } from "../types/FirestoreDocument";
-import firebase from "firebase/compat";
+
 import { getTortoiseApp } from "./getTortoiseApp";
 import {
   FirestoreDocResponse,
@@ -8,10 +8,10 @@ import {
 import { TortoiseClauses } from "../types/TortoiseClauses";
 import { buildQueries } from "./buildQueries";
 import { sanitizeData } from "./sanitizeData";
-import App = firebase.app.App;
-import CollectionReference = firebase.firestore.CollectionReference;
-import Query = firebase.firestore.Query;
-import OrderByDirection = firebase.firestore.OrderByDirection;
+import { app, firestore } from "firebase-admin";
+import App = app.App;
+import OrderByDirection = firestore.OrderByDirection;
+import Query = firestore.Query;
 
 export class FirestoreRepository<T> {
   readonly collection: string;
@@ -25,11 +25,11 @@ export class FirestoreRepository<T> {
 
   async create(data: Partial<T>,
                uid?: string): Promise<FirestoreDocResponse<T>> {
-    const ref = this.app.firestore().collection(this.collection).doc(uid);
-
     if (this.isValidDocFormat(data)) {
       return [null, "Invalid data format. Data must be an object"];
     }
+
+    const ref = uid ? this.getDocRefWithUid(uid) : this.getDocRef();
 
     try {
       await ref.set(sanitizeData(data));
@@ -51,6 +51,14 @@ export class FirestoreRepository<T> {
     if (Array.isArray(data)) return false;
 
     return typeof data === "object";
+  }
+
+  private getDocRefWithUid(uid: string) {
+    return this.app.firestore().collection(this.collection).doc(uid);
+  }
+
+  private getDocRef() {
+    return this.app.firestore().collection(this.collection).doc();
   }
 
   async delete(uid: string): Promise<boolean> {
@@ -100,7 +108,7 @@ export class FirestoreRepository<T> {
   async find(where: TortoiseClauses<T>,
              limit?: number,
              orderBy?: [string, OrderByDirection]): Promise<FirestoreDocsResponse<T>> {
-    let collectionRes: CollectionReference | Query = this.app.firestore().collection(this.collection);
+    let collectionRes: Query = this.app.firestore().collection(this.collection);
     const queries = buildQueries<T>(where as any);
 
     for (const query of queries) {

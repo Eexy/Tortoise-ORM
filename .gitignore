@@ -5,6 +5,8 @@ dist
 .firebaserc
 firebase.json
 database-debug.log
+firebase-debug.log
 firestore-debug.log
 tortoise.json
 .env
+ui-debug.log

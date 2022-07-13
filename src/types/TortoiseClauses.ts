@@ -1,6 +1,6 @@
-import firebase from "firebase/compat";
 import { FirebaseBaseType } from "./FirebaseType";
-import WhereFilterOp = firebase.firestore.WhereFilterOp;
+import { firestore } from "firebase-admin";
+import WhereFilterOp = firestore.WhereFilterOp;
 
 export type TortoiseClauses<T> = {
   [k in keyof T]: FirebaseBaseType | Condition | TortoiseClauses<T[k]>;

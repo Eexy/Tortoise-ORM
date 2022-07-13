@@ -1,6 +1,6 @@
-import firebase from "firebase/compat";
 import { getTortoiseStorage } from "./getTortoiseStorage";
-import App = firebase.app.App;
+import { app } from "firebase-admin";
+import App = app.App;
 
 /**
  * Initialize Tortoise's app

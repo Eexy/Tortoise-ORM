@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "firebase emulators:start && jest"
+    "test": "firebase emulators:start --project demo-tortoise && jest"
   },
   "keywords": [],
   "author": "",
@@ -15,11 +15,11 @@
     "@types/node": "^18.0.3",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
-    "admin": "^1.4.1",
+    "dotenv": "^16.0.1",
     "eslint": "^8.19.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.5.0",
-    "firebase": "^9.9.0",
+    "firebase-admin": "^11.0.0",
     "jest": "^28.1.2",
     "prettier": "2.7.1",
     "ts-jest": "^28.0.5",
