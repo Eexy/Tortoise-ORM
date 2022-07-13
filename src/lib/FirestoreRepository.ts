@@ -21,7 +21,7 @@ export class FirestoreRepository<T> {
 
   async create(data: Partial<T>,
                uid?: string): Promise<T & FirestoreDocument> {
-    if (this.isValidDocFormat(data)) {
+    if (!this.isValidDocFormat(data)) {
       throw new Error("Invalid data format for new document. Data must be an object");
     }
 
