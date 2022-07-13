@@ -4,3 +4,7 @@ package-lock.json
 dist
 .firebaserc
 firebase.json
+database-debug.log
+firestore-debug.log
+tortoise.json
+.env
