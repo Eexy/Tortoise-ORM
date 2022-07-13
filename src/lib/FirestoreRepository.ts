@@ -1,10 +1,6 @@
 import { FirestoreDocument } from "../types/FirestoreDocument";
 
 import { getTortoiseApp } from "./getTortoiseApp";
-import {
-  FirestoreDocResponse,
-  FirestoreDocsResponse,
-} from "../types/FirestoreResponse";
 import { TortoiseClauses } from "../types/TortoiseClauses";
 import { buildQueries } from "./buildQueries";
 import { sanitizeData } from "./sanitizeData";
@@ -24,25 +20,16 @@ export class FirestoreRepository<T> {
   }
 
   async create(data: Partial<T>,
-               uid?: string): Promise<FirestoreDocResponse<T>> {
+               uid?: string): Promise<T & FirestoreDocument> {
     if (this.isValidDocFormat(data)) {
-      return [null, "Invalid data format. Data must be an object"];
+      throw new Error("Invalid data format for new document. Data must be an object");
     }
 
     const ref = uid ? this.getDocRefWithUid(uid) : this.getDocRef();
 
-    try {
-      await ref.set(sanitizeData(data));
-      const res = await ref.get();
-      const doc = { uid: ref.id, ...res.data() } as T & FirestoreDocument;
-      return [doc, null];
-    } catch (e) {
-      if (e instanceof Error) {
-        return [null, e.message];
-      }
-
-      return [null, "An error has occurred. Unable to create document"];
-    }
+    await ref.set(sanitizeData(data));
+    const res = await ref.get();
+    return { uid: ref.id, ...res.data() } as T & FirestoreDocument;
   }
 
   private isValidDocFormat(data: any): boolean {
@@ -68,46 +55,36 @@ export class FirestoreRepository<T> {
   }
 
   async update(updates: Partial<T>,
-               uid: string): Promise<FirestoreDocResponse<T>> {
+               uid: string): Promise<T & FirestoreDocument> {
     const ref = this.app.firestore().collection(this.collection).doc(uid);
     const data = await ref.get();
 
     if (!data.exists) {
-      return [null, "Invalid update. Document doesn't exist"];
+      throw new Error("Invalid update. Document doesn't exist");
     }
 
     if (this.isValidDocFormat(updates)) {
-      return [null, "Invalid updates format. Updates must be an object"];
+      throw new Error("Invalid updates format. Updates must be an object");
     }
 
-    try {
-      await ref.update(sanitizeData(updates));
-      const res = await ref.get();
-      const doc = { uid: ref.id, ...res.data() } as T & FirestoreDocument;
-      return [doc, null];
-    } catch (e) {
-      if (e instanceof Error) {
-        return [null, e.message];
-      }
-
-      return [null, "An error has occurred. Unable to update document"];
-    }
+    await ref.update(sanitizeData(updates));
+    const res = await ref.get();
+    return { uid: ref.id, ...res.data() } as T & FirestoreDocument;
   }
 
-  async findByUid(uid: string): Promise<FirestoreDocResponse<T>> {
+  async findByUid(uid: string): Promise<T & FirestoreDocument | null> {
     const res = await this.app.firestore().collection(this.collection).doc(uid).get();
 
     if (res.exists) {
-      return [null, `Document ${uid} doesn't exist`];
+      return null;
     }
 
-    const doc = { uid: res.id, ...res.data() } as T & FirestoreDocument;
-    return [doc, null];
+    return { uid: res.id, ...res.data() } as T & FirestoreDocument;
   }
 
   async find(where: TortoiseClauses<T>,
              limit?: number,
-             orderBy?: [string, OrderByDirection]): Promise<FirestoreDocsResponse<T>> {
+             orderBy?: [string, OrderByDirection]): Promise<(T & FirestoreDocument)[]> {
     let collectionRes: Query = this.app.firestore().collection(this.collection);
     const queries = buildQueries<T>(where as any);
 
@@ -120,35 +97,17 @@ export class FirestoreRepository<T> {
     if (limit) collectionRes = collectionRes.limit(limit);
 
 
-    try {
-      const snaps = await collectionRes.get();
-      const docs = snaps.docs.map(doc => ({ uid: doc.id, ...doc.data() })) as (T & FirestoreDocument)[];
-      return [docs, null];
-    } catch (e) {
-      if (e instanceof Error) {
-        return [null, e.message];
-      }
-
-      return [null, "An error has occurred. Unable to fetch documents"];
-    }
+    const snaps = await collectionRes.get();
+    return snaps.docs.map(doc => ({ uid: doc.id, ...doc.data() })) as (T & FirestoreDocument)[];
   }
 
   async findOne(where: TortoiseClauses<T>,
-                orderBy?: [string, OrderByDirection]): Promise<FirestoreDocResponse<T>> {
-    const [docs, err] = await this.find(where, undefined, orderBy);
+                orderBy?: [string, OrderByDirection]): Promise<T & FirestoreDocument | null> {
 
-    if (err && !docs) {
-      return [null, err];
-    }
+    const docs = await this.find(where, undefined, orderBy);
 
-    if (!docs) {
-      return [{} as (T & FirestoreDocument), null];
-    }
+    if (!docs.length) return null;
 
-    if (!docs.length) {
-      return [{} as (T & FirestoreDocument), null];
-    }
-
-    return [docs[0], null];
+    return docs[0];
   }
 }
