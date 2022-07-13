@@ -27,6 +27,10 @@ export class FirestoreRepository<T> {
                uid?: string): Promise<FirestoreDocResponse<T>> {
     const ref = this.app.firestore().collection(this.collection).doc(uid);
 
+    if (this.isValidDocFormat(data)) {
+      return { doc: null, err: "Invalid data format. Data must be an object" };
+    }
+
     try {
       await ref.set(sanitizeData(data));
       const res = await ref.get();
@@ -44,6 +48,14 @@ export class FirestoreRepository<T> {
     }
   }
 
+  private isValidDocFormat(data: any): boolean {
+    if (data === null || data === undefined) return false;
+
+    if (Array.isArray(data)) return false;
+
+    return typeof data === "object";
+  }
+
 
   async delete(uid: string): Promise<boolean> {
     await this.app.firestore().collection(this.collection).doc(uid).delete();
@@ -54,6 +66,13 @@ export class FirestoreRepository<T> {
   async update(updates: Partial<T>,
                uid: string): Promise<FirestoreDocResponse<T>> {
     const ref = this.app.firestore().collection(this.collection).doc(uid);
+
+    if (this.isValidDocFormat(updates)) {
+      return {
+        doc: null,
+        err: "Invalid updates format. Updates must be an object",
+      };
+    }
 
     try {
       await ref.update(sanitizeData(updates));
