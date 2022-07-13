@@ -63,7 +63,7 @@ export class FirestoreRepository<T> {
       throw new Error("Invalid update. Document doesn't exist");
     }
 
-    if (this.isValidDocFormat(updates)) {
+    if (!this.isValidDocFormat(updates)) {
       throw new Error("Invalid updates format. Updates must be an object");
     }
 
@@ -75,7 +75,7 @@ export class FirestoreRepository<T> {
   async findByUid(uid: string): Promise<T & FirestoreDocument | null> {
     const res = await this.app.firestore().collection(this.collection).doc(uid).get();
 
-    if (res.exists) {
+    if (!res.exists) {
       return null;
     }
 
