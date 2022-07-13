@@ -17,7 +17,7 @@ export class FirestoreRepository<T> {
   readonly collection: string;
   readonly app: App;
 
-  constructor(collection: string, appName: string,
+  constructor(collection: string, appName: string = "admin",
   ) {
     this.collection = collection;
     this.app = getTortoiseApp(appName);
