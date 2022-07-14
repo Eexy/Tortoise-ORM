@@ -230,7 +230,7 @@ export class FirestoreRepository<T> {
    * @param {TortoiseClauses<T>} where - conditions to apply when searching for document
    * @param {Partial<T>} updates - updates to apply
    * @param {OrderClause} [orderBy] - order clause
-   * @return {Promise<Document<T> | null>} return null when no existing document matching conditions else return updated document
+   * @returns {Promise<Document<T> | null>} return null when no existing document matching conditions else return updated document
    * */
   async findOneAndUpdate(where: TortoiseClauses<T>,
                          updates: Partial<T>,
@@ -248,7 +248,7 @@ export class FirestoreRepository<T> {
    * @param {TortoiseClauses<T>} where - conditions to apply when searching for document's reference
    * @param {number} [limit] - max document's references to find and update
    * @param {OrderClause} [orderBy] - order clause
-   * @return {Promise<Document<DocumentReference[]>} return document's references that match conditions
+   * @returns {Promise<Document<DocumentReference[]>} return document's references that match conditions
    * */
   private async findRefs(where: TortoiseClauses<T>, limit?: number,
                          orderBy?: OrderClause): Promise<DocumentReference[]> {
