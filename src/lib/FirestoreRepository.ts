@@ -92,6 +92,14 @@ export class FirestoreRepository<T> {
     return docs.map(doc => ({ uid: doc.id, ...doc.data() })) as (T & FirestoreDocument)[];
   }
 
+  async findAndUpdate(where: TortoiseClauses<T>,
+                      updates: Partial<T>,
+                      limit?: number,
+                      orderBy?: [string, OrderByDirection]): Promise<(T & FirestoreDocument)[]> {
+    const refs = await this.findRefs(where, limit, orderBy);
+    return await Promise.all(refs.map(async (ref) => await this.update(updates, ref.id)));
+  }
+
   async findOne(where: TortoiseClauses<T>,
                 orderBy?: [string, OrderByDirection]): Promise<T & FirestoreDocument | null> {
 
