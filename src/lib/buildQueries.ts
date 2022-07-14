@@ -1,5 +1,6 @@
 import {
   Condition,
+  TortoiseClause,
   TortoiseClauses,
   TortoiseQuery,
 } from "../types/TortoiseClauses";
@@ -10,7 +11,7 @@ import {
  * @param {Record<string, TortoiseClauses<T>>} where - where clause
  * @returns {TortoiseQuery[]} return array of queries
  */
-export function buildQueries<T>(where: Record<string, TortoiseClauses<T>>): TortoiseQuery[] {
+export function buildQueries<T>(where: Record<string, TortoiseClause<T>>): TortoiseQuery[] {
   const queries: TortoiseQuery[] = [];
 
   for (const [key, entry] of Object.entries(where)) {
