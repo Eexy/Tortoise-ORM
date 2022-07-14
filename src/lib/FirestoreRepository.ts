@@ -1,4 +1,4 @@
-import { FirestoreDocument } from "../types/FirestoreDocument";
+import { Document } from "../types/Document";
 
 import { getTortoiseApp } from "./getTortoiseApp";
 import { TortoiseClauses } from "../types/TortoiseClauses";
@@ -21,7 +21,7 @@ export class FirestoreRepository<T> {
   }
 
   async create(data: Partial<T>,
-               uid?: string): Promise<T & FirestoreDocument> {
+               uid?: string): Promise<Document<T>> {
     if (!this.isValidDocFormat(data)) {
       throw new Error("Invalid data format for new document. Data must be an object");
     }
@@ -30,7 +30,7 @@ export class FirestoreRepository<T> {
 
     await ref.set(sanitizeData(data));
     const res = await ref.get();
-    return { uid: ref.id, ...res.data() } as T & FirestoreDocument;
+    return { uid: ref.id, ...res.data() } as Document<T>;
   }
 
   private isValidDocFormat(data: any): boolean {
@@ -56,7 +56,7 @@ export class FirestoreRepository<T> {
   }
 
   async update(updates: Partial<T>,
-               uid: string): Promise<T & FirestoreDocument | null> {
+               uid: string): Promise<Document<T> | null> {
     const ref = this.app.firestore().collection(this.collection).doc(uid);
     const data = await ref.get();
 
@@ -70,34 +70,42 @@ export class FirestoreRepository<T> {
 
     await ref.update(sanitizeData(updates));
     const res = await ref.get();
-    return { uid: ref.id, ...res.data() } as T & FirestoreDocument;
+    return { uid: ref.id, ...res.data() } as Document<T>;
   }
 
-  async findByUid(uid: string): Promise<T & FirestoreDocument | null> {
+  async findByUid(uid: string): Promise<Document<T> | null> {
     const res = await this.app.firestore().collection(this.collection).doc(uid).get();
 
     if (!res.exists) {
       return null;
     }
 
-    return { uid: res.id, ...res.data() } as T & FirestoreDocument;
+    return { uid: res.id, ...res.data() } as Document<T>;
+  }
+
+  async findByUidOrFail(uid: string): Promise<Document<T>> {
+    const doc = await this.findByUid(uid);
+
+    if (!doc) throw new Error(`Document ${uid} doesn't exist`);
+
+    return doc;
   }
 
   async find(where: TortoiseClauses<T>,
              limit?: number,
-             orderBy?: [string, OrderByDirection]): Promise<(T & FirestoreDocument)[]> {
+             orderBy?: [string, OrderByDirection]): Promise<Document<T>[]> {
     const refs = await this.findRefs(where, limit, orderBy);
     const docs = await Promise.all(refs.map(async (ref) => await ref.get()));
 
-    return docs.map(doc => ({ uid: doc.id, ...doc.data() })) as (T & FirestoreDocument)[];
+    return docs.map(doc => ({ uid: doc.id, ...doc.data() })) as Document<T>[];
   }
 
   async findAndUpdate(where: TortoiseClauses<T>,
                       updates: Partial<T>,
                       limit?: number,
-                      orderBy?: [string, OrderByDirection]): Promise<(T & FirestoreDocument)[]> {
+                      orderBy?: [string, OrderByDirection]): Promise<Document<T>[]> {
     const refs = await this.findRefs(where, limit, orderBy);
-    const updatedDocs: (T & FirestoreDocument)[] = [];
+    const updatedDocs: Document<T>[] = [];
 
     for (const ref of refs) {
       const updatedDoc = await this.update(updates, ref.id);
@@ -109,7 +117,7 @@ export class FirestoreRepository<T> {
   }
 
   async findOne(where: TortoiseClauses<T>,
-                orderBy?: [string, OrderByDirection]): Promise<T & FirestoreDocument | null> {
+                orderBy?: [string, OrderByDirection]): Promise<Document<T> | null> {
 
     const docs = await this.find(where, undefined, orderBy);
 
@@ -118,9 +126,18 @@ export class FirestoreRepository<T> {
     return docs[0];
   }
 
+  async findOneOrFail(where: TortoiseClauses<T>,
+                      orderBy?: [string, OrderByDirection]): Promise<Document<T>> {
+    const doc = await this.findOne(where, orderBy);
+
+    if (!doc) throw new Error(`No document matching conditions`);
+
+    return doc;
+  }
+
   async findOneAndUpdate(where: TortoiseClauses<T>,
                          updates: Partial<T>,
-                         orderBy?: [string, OrderByDirection]): Promise<T & FirestoreDocument | null> {
+                         orderBy?: [string, OrderByDirection]): Promise<Document<T> | null> {
     const refs = await this.findRefs(where, undefined, orderBy);
 
     if (!refs.length) return null;

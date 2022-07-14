@@ -1,4 +1,4 @@
-import { FirestoreDocument } from "./FirestoreDocument";
+import { Document } from "./Document";
 
 export type FirestoreDocResponse<T> =
   FirestoreSuccessDocResponse<T>
@@ -8,8 +8,8 @@ export type FirestoreDocsResponse<T> =
   FirestoreSuccessDocsResponse<T>
   | FirestoreFailedResponse
 
-export type FirestoreSuccessDocResponse<T> = [T & FirestoreDocument, null]
+export type FirestoreSuccessDocResponse<T> = [T & Document, null]
 
 export type FirestoreFailedResponse = [null, string]
 
-export type FirestoreSuccessDocsResponse<T> = [(T & FirestoreDocument)[], null]
+export type FirestoreSuccessDocsResponse<T> = [(T & Document)[], null]
