@@ -10,3 +10,4 @@ firestore-debug.log
 tortoise.json
 .env
 ui-debug.log
+tsconfig.prod.tsbuildinfo
