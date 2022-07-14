@@ -7,7 +7,7 @@ import App = app.App;
  * @param {App} app
  * @param {string} appName
  * @throws Throw error if appName is already taken
- * @return {void}
+ * @returns {void}
  */
 export function initializeTortoiseApp(app: App,
                                       appName: string = "admin"): void {

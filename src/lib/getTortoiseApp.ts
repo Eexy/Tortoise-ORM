@@ -6,7 +6,7 @@ import App = app.App;
  * Get app by name
  * @param {string} appName
  * @throws Throw error when app doesn't exist
- * @return {App}
+ * @returns {App}
  */
 export function getTortoiseApp(appName: string): App {
   const storage = getTortoiseStorage();
