@@ -5,6 +5,10 @@ function getStorage() {
   return global as CustomGlobal;
 }
 
+/**
+ * Get tortoise storage in global object. If tortoise's storage doesn't exist it create a new one
+ * @returns {TortoiseStorage}
+ */
 export function getTortoiseStorage(): TortoiseStorage {
   const storage = getStorage();
 
