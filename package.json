@@ -1,7 +1,7 @@
 {
-  "name": "tortoise",
+  "name": "tortoise-orm",
   "version": "1.0.0",
-  "description": "",
+  "description": "A small wrapper around firebase-admin",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

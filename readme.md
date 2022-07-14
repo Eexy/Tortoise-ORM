@@ -21,7 +21,7 @@ The first thing to do is to register a new tortoise app. To do that you juste ha
 to do :
 
 ```typescript
-import { initializeTortoiseApp } from "tortoise";
+import { initializeTortoiseApp } from "tortoise-orm";
 
 initializeTortoiseApp(app)
 ```
@@ -30,7 +30,7 @@ When you register app you can pass a name. By default, the app name is "admin" b
 like this :
 
 ```typescript
-import { initializeTortoiseApp } from "tortoise";
+import { initializeTortoiseApp } from "tortoise-orm";
 
 initializeTortoiseApp(app, "test")
 ```
@@ -43,7 +43,7 @@ Now that you have registered an app you can create a repository by passing it th
 describe documents
 
 ```typescript
-import { FirestoreRepository } from "tortoise";
+import { FirestoreRepository } from "tortoise-orm";
 
 interface User {
   email: string;
@@ -58,7 +58,7 @@ When you create a repository by default it will use the admin app, but you can c
 name
 
 ```typescript
-import { FirestoreRepository } from "tortoise";
+import { FirestoreRepository } from "tortoise-orm";
 
 interface User {
   email: string;
@@ -122,7 +122,7 @@ because it integrated an easy way to build queries.
 
 ```typescript
 import repository from "../myRepository"
-import { isDifferent } from "tortoise";
+import { isDifferent } from "tortoise-orm";
 
 const users = await repository.find({
   email: "john.doe@test.com",
@@ -145,7 +145,7 @@ When you search for document you can also pass a limit and an order direction li
 
 ```typescript
 import repository from "../myRepository"
-import { isDifferent } from "tortoise";
+import { isDifferent } from "tortoise-orm";
 
 const users = await repository.find({
   email: "john.doe@test.com",
@@ -159,7 +159,7 @@ To juste find one doc you need to use the function findOne :
 
 ```typescript
 import repository from "../myRepository"
-import { isDifferent } from "tortoise";
+import { isDifferent } from "tortoise-orm";
 
 const user = await repository.findOne({
   email: "john.doe@test.com",
@@ -173,7 +173,7 @@ If you need to get a document by its uid you can do it by using the function fin
 
 ```typescript
 import repository from "../myRepository"
-import { isDifferent } from "tortoise";
+import { isDifferent } from "tortoise-orm";
 
 const user = await repository.findByUid("user_uid")
 ```
@@ -184,7 +184,7 @@ To delete a document juste use the delete function by passing the document's uid
 
 ```typescript
 import repository from "../myRepository"
-import { isDifferent } from "tortoise";
+import { isDifferent } from "tortoise-orm";
 
 const res = await repository.delete("user_uid")
 ```
