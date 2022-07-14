@@ -1,4 +1,4 @@
-import { Document } from "../types/Document";
+import { TortoiseDocument } from "../types/TortoiseDocument";
 import { getTortoiseApp } from "./getTortoiseApp";
 import { TortoiseClauses } from "../types/TortoiseClauses";
 import { buildQueries } from "./buildQueries";
@@ -39,10 +39,10 @@ export class FirestoreRepository<T> {
    * @param {T} data - data for new document
    * @param {string} [uid] - uid to use for new document
    * @throws Throw error when invalid data format
-   * @returns {Promise<Document<T>>} return the newly created document
+   * @returns {Promise<TortoiseDocument<T>>} return the newly created document
    */
   async create(data: T,
-               uid?: string): Promise<Document<T>> {
+               uid?: string): Promise<TortoiseDocument<T>> {
     if (!this.isValidDocFormat(data)) {
       throw new Error("Invalid data format for new document. Data must be an object");
     }
@@ -51,7 +51,7 @@ export class FirestoreRepository<T> {
 
     await ref.set(sanitizeData(data));
     const res = await ref.get();
-    return { uid: ref.id, ...res.data() } as Document<T>;
+    return { uid: ref.id, ...res.data() } as TortoiseDocument<T>;
   }
 
   /**
@@ -103,10 +103,10 @@ export class FirestoreRepository<T> {
    * @param {Partial<T>} updates - updates to apply
    * @param {string} uid - document's uid to update
    * @throws Throw error when invalid updates format
-   * @returns {Promise<Document<T> | null>} return null when document doesn't exist else return updated document
+   * @returns {Promise<TortoiseDocument<T> | null>} return null when document doesn't exist else return updated document
    */
   async update(updates: Partial<T>,
-               uid: string): Promise<Document<T> | null> {
+               uid: string): Promise<TortoiseDocument<T> | null> {
     if (!this.isValidDocFormat(updates)) {
       throw new Error("Invalid updates format. Updates must be an object");
     }
@@ -120,31 +120,31 @@ export class FirestoreRepository<T> {
 
     await ref.update(sanitizeData(updates));
     const res = await ref.get();
-    return { uid: ref.id, ...res.data() } as Document<T>;
+    return { uid: ref.id, ...res.data() } as TortoiseDocument<T>;
   }
 
   /**
    * Find document by uid
    * @param {string} uid
-   * @returns {Promise<Document<T> | null>} return null when document doesn't exist else return document
+   * @returns {Promise<TortoiseDocument<T> | null>} return null when document doesn't exist else return document
    */
-  async findByUid(uid: string): Promise<Document<T> | null> {
+  async findByUid(uid: string): Promise<TortoiseDocument<T> | null> {
     const res = await this.app.firestore().collection(this.collection).doc(uid).get();
 
     if (!res.exists) {
       return null;
     }
 
-    return { uid: res.id, ...res.data() } as Document<T>;
+    return { uid: res.id, ...res.data() } as TortoiseDocument<T>;
   }
 
   /**
    * Find document by uid or fail
    * @param {string} uid
    * @throws Throw error when document doesn't exist
-   * @returns {Promise<Document<T>>} return document
+   * @returns {Promise<TortoiseDocument<T>>} return document
    */
-  async findByUidOrFail(uid: string): Promise<Document<T>> {
+  async findByUidOrFail(uid: string): Promise<TortoiseDocument<T>> {
     const doc = await this.findByUid(uid);
 
     if (!doc) throw new Error(`Document ${uid} doesn't exist`);
@@ -158,15 +158,15 @@ export class FirestoreRepository<T> {
    * @param {TortoiseClauses<T>} where - conditions to apply when searching for documents
    * @param {number} [limit] - max documents to find
    * @param {OrderClause} [orderBy] - order clause
-   * @returns {Promise<Document<T>>} return documents matching conditions
+   * @returns {Promise<TortoiseDocument<T>>} return documents matching conditions
    */
   async find(where: TortoiseClauses<T>,
              limit?: number,
-             orderBy?: OrderClause): Promise<Document<T>[]> {
+             orderBy?: OrderClause): Promise<TortoiseDocument<T>[]> {
     const refs = await this.findRefs(where, limit, orderBy);
     const docs = await Promise.all(refs.map(async (ref) => await ref.get()));
 
-    return docs.map(doc => ({ uid: doc.id, ...doc.data() })) as Document<T>[];
+    return docs.map(doc => ({ uid: doc.id, ...doc.data() })) as TortoiseDocument<T>[];
   }
 
   /**
@@ -175,14 +175,14 @@ export class FirestoreRepository<T> {
    * @param {Partial<T>} updates - updates to apply
    * @param {number} [limit] - max document to find and update
    * @param {OrderClause} [orderBy] - order clause
-   * @returns {Promise<Document<T>>} return updated documents
+   * @returns {Promise<TortoiseDocument<T>>} return updated documents
    */
   async findAndUpdate(where: TortoiseClauses<T>,
                       updates: Partial<T>,
                       limit?: number,
-                      orderBy?: OrderClause): Promise<Document<T>[]> {
+                      orderBy?: OrderClause): Promise<TortoiseDocument<T>[]> {
     const refs = await this.findRefs(where, limit, orderBy);
-    const updatedDocs: Document<T>[] = [];
+    const updatedDocs: TortoiseDocument<T>[] = [];
 
     for (const ref of refs) {
       const updatedDoc = await this.update(updates, ref.id);
@@ -197,10 +197,10 @@ export class FirestoreRepository<T> {
    * Find first document matching where clauses
    * @param {TortoiseClauses<T>} where - conditions to apply when searching for document
    * @param {OrderClause} [orderBy] - order clause
-   * @returns {Promise<Document<T> | null>} return null when no existing document match conditions else return document
+   * @returns {Promise<TortoiseDocument<T> | null>} return null when no existing document match conditions else return document
    */
   async findOne(where: TortoiseClauses<T>,
-                orderBy?: OrderClause): Promise<Document<T> | null> {
+                orderBy?: OrderClause): Promise<TortoiseDocument<T> | null> {
 
     const docs = await this.find(where, undefined, orderBy);
 
@@ -214,10 +214,10 @@ export class FirestoreRepository<T> {
    * @param {TortoiseClauses<T>} where - conditions to apply when searching for document
    * @param {OrderClause} [orderBy] - order clause
    * @throws Throw error when no document match conditions
-   * @returns {Promise<Document<T> | null>} return null when no existing document match conditions else return document
+   * @returns {Promise<TortoiseDocument<T> | null>} return null when no existing document match conditions else return document
    */
   async findOneOrFail(where: TortoiseClauses<T>,
-                      orderBy?: OrderClause): Promise<Document<T>> {
+                      orderBy?: OrderClause): Promise<TortoiseDocument<T>> {
     const doc = await this.findOne(where, orderBy);
 
     if (!doc) throw new Error(`No document matching conditions`);
@@ -230,11 +230,11 @@ export class FirestoreRepository<T> {
    * @param {TortoiseClauses<T>} where - conditions to apply when searching for document
    * @param {Partial<T>} updates - updates to apply
    * @param {OrderClause} [orderBy] - order clause
-   * @returns {Promise<Document<T> | null>} return null when no existing document matching conditions else return updated document
+   * @returns {Promise<TortoiseDocument<T> | null>} return null when no existing document matching conditions else return updated document
    * */
   async findOneAndUpdate(where: TortoiseClauses<T>,
                          updates: Partial<T>,
-                         orderBy?: OrderClause): Promise<Document<T> | null> {
+                         orderBy?: OrderClause): Promise<TortoiseDocument<T> | null> {
     const refs = await this.findRefs(where, undefined, orderBy);
 
     if (!refs.length) return null;
@@ -248,7 +248,7 @@ export class FirestoreRepository<T> {
    * @param {TortoiseClauses<T>} where - conditions to apply when searching for document's reference
    * @param {number} [limit] - max document's references to find and update
    * @param {OrderClause} [orderBy] - order clause
-   * @returns {Promise<Document<DocumentReference[]>} return document's references that match conditions
+   * @returns {Promise<TortoiseDocument<DocumentReference[]>} return document's references that match conditions
    * */
   private async findRefs(where: TortoiseClauses<T>, limit?: number,
                          orderBy?: OrderClause): Promise<DocumentReference[]> {
