@@ -4,6 +4,12 @@ import {
   TortoiseQuery,
 } from "../types/TortoiseClauses";
 
+/**
+ * Build array of queries from where clauses
+ * @template T
+ * @param {Record<string, TortoiseClauses<T>>} where - where clause
+ * @returns {TortoiseQuery[]} return array of queries
+ */
 export function buildQueries<T>(where: Record<string, TortoiseClauses<T>>): TortoiseQuery[] {
   const queries: TortoiseQuery[] = [];
 
@@ -30,6 +36,11 @@ export function buildQueries<T>(where: Record<string, TortoiseClauses<T>>): Tort
   return queries;
 }
 
+/**
+ * Check if object is a nested where clause
+ * @param {Object} obj
+ * @returns {boolean}
+ */
 export function isNestedWhereClauses(obj: Object): boolean {
   for (const key of Object.keys(obj)) {
     if (key !== "cond" && key !== "value") {
