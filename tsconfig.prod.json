@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.dev.json",
+  "exclude": [
+    "tests/**",
+    "src/helpers"
+  ],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist"
+  }
+}
