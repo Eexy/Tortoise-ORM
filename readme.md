@@ -9,7 +9,7 @@ Like said Tortoise is a wrapper around firebase-admin but with great functionali
 - Typescript is integrated, so you know what is the shape of a document
 - Tortoise doesn't throw error when manipulating document but return the error. That plus typescript you are sur to
   never miss an error
-- It can sanitize you data : Before creating or updating a document Tortoise will remove all undefined key so you don't
+- It can sanitize you data : Before creating or updating a document Tortoise will remove all undefined key, so you don't
   need to change firebase settings
 - It is easy to build queries
 
@@ -106,7 +106,7 @@ To update a document you just have to pass the document uid and the updates you 
 ```typescript
 import repository from "../myRepository"
 
-const [user, err] = await repository.update({
+const user = await repository.update({
   email: "john.doe@test.com",
   firstName: "John",
   lastName: "Doe"
@@ -124,7 +124,7 @@ because it integrated an easy way to build queries.
 import repository from "../myRepository"
 import { isDifferent } from "tortoise";
 
-const [users, err] = await repository.find({
+const users = await repository.find({
   email: "john.doe@test.com",
   firstName: isDifferent("Jhon"),
 })
@@ -147,7 +147,7 @@ When you search for document you can also pass a limit and an order direction li
 import repository from "../myRepository"
 import { isDifferent } from "tortoise";
 
-const [users, err] = await repository.find({
+const users = await repository.find({
   email: "john.doe@test.com",
   firstName: isDifferent("Jhon"),
 }, 3, ["email", "desc"])
@@ -161,7 +161,7 @@ To juste find one doc you need to use the function findOne :
 import repository from "../myRepository"
 import { isDifferent } from "tortoise";
 
-const [user, err] = await repository.findOne({
+const user = await repository.findOne({
   email: "john.doe@test.com",
   firstName: isDifferent("Jhon"),
 })
@@ -175,7 +175,7 @@ If you need to get a document by its uid you can do it by using the function fin
 import repository from "../myRepository"
 import { isDifferent } from "tortoise";
 
-const [user, err] = await repository.findByUid("user_uid")
+const user = await repository.findByUid("user_uid")
 ```
 
 ### Delete a document
