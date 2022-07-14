@@ -61,7 +61,7 @@ export class FirestoreRepository<T> {
     const data = await ref.get();
 
     if (!data.exists) {
-      throw new Error("Invalid update. Document doesn't exist");
+      throw new Error(`Document ${uid} doesn't exist`);
     }
 
     if (!this.isValidDocFormat(updates)) {
@@ -110,6 +110,16 @@ export class FirestoreRepository<T> {
     return docs[0];
   }
 
+  async findOneAndUpdate(where: TortoiseClauses<T>,
+                         updates: Partial<T>,
+                         orderBy?: [string, OrderByDirection]): Promise<T & FirestoreDocument | null> {
+    const refs = await this.findRefs(where, undefined, orderBy);
+
+    if (!refs.length) return null;
+
+    return this.update(updates, refs[0].id);
+  }
+
   private async findRefs(where: TortoiseClauses<T>, limit?: number,
                          orderBy?: [string, OrderByDirection]): Promise<DocumentReference[]> {
     let collectionRes: Query = this.app.firestore().collection(this.collection);
@@ -124,6 +134,6 @@ export class FirestoreRepository<T> {
     if (limit) collectionRes = collectionRes.limit(limit);
 
     const snaps = await collectionRes.get();
-    return snaps.docs.map(snap => snap.ref);
+    return snaps.docs.filter(snap => snap.exists).map(snap => snap.ref);
   }
 }
