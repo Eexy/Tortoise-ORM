@@ -56,12 +56,12 @@ export class FirestoreRepository<T> {
   }
 
   async update(updates: Partial<T>,
-               uid: string): Promise<T & FirestoreDocument> {
+               uid: string): Promise<T & FirestoreDocument | null> {
     const ref = this.app.firestore().collection(this.collection).doc(uid);
     const data = await ref.get();
 
     if (!data.exists) {
-      throw new Error(`Document ${uid} doesn't exist`);
+      return null;
     }
 
     if (!this.isValidDocFormat(updates)) {
@@ -97,7 +97,15 @@ export class FirestoreRepository<T> {
                       limit?: number,
                       orderBy?: [string, OrderByDirection]): Promise<(T & FirestoreDocument)[]> {
     const refs = await this.findRefs(where, limit, orderBy);
-    return await Promise.all(refs.map(async (ref) => await this.update(updates, ref.id)));
+    const updatedDocs: (T & FirestoreDocument)[] = [];
+
+    for (const ref of refs) {
+      const updatedDoc = await this.update(updates, ref.id);
+
+      if (updatedDoc) updatedDocs.push(updatedDoc);
+    }
+
+    return updatedDocs;
   }
 
   async findOne(where: TortoiseClauses<T>,
