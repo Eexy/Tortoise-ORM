@@ -1,3 +1,7 @@
+/**
+ * Delete all undefined key from an object
+ * @returns {Record<string, *>}
+ * */
 export function sanitizeData(data: Record<string, any>): Record<string, any> {
   if (Array.isArray(data) || data === undefined) throw Error("Data must be an object");
 
