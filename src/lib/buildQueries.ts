@@ -1,7 +1,6 @@
 import {
   Condition,
   TortoiseClause,
-  TortoiseClauses,
   TortoiseQuery,
 } from "../types/TortoiseClauses";
 

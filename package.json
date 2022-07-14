@@ -2,7 +2,8 @@
   "name": "tortoise",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --project tsconfig.prod.json",
     "emulators": "firebase emulators:start --project demo-tortoise",
