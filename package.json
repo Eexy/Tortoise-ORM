@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "test": "firebase emulators:start --project demo-tortoise && jest"
+    "emulators": "firebase emulators:start --project demo-tortoise",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",

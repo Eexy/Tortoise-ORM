@@ -8,6 +8,7 @@ import { app, firestore } from "firebase-admin";
 import App = app.App;
 import OrderByDirection = firestore.OrderByDirection;
 import Query = firestore.Query;
+import DocumentReference = firestore.DocumentReference;
 
 export class FirestoreRepository<T> {
   readonly collection: string;
@@ -85,6 +86,24 @@ export class FirestoreRepository<T> {
   async find(where: TortoiseClauses<T>,
              limit?: number,
              orderBy?: [string, OrderByDirection]): Promise<(T & FirestoreDocument)[]> {
+    const refs = await this.findRefs(where, limit, orderBy);
+    const docs = await Promise.all(refs.map(async (ref) => await ref.get()));
+
+    return docs.map(doc => ({ uid: doc.id, ...doc.data() })) as (T & FirestoreDocument)[];
+  }
+
+  async findOne(where: TortoiseClauses<T>,
+                orderBy?: [string, OrderByDirection]): Promise<T & FirestoreDocument | null> {
+
+    const docs = await this.find(where, undefined, orderBy);
+
+    if (!docs.length) return null;
+
+    return docs[0];
+  }
+
+  private async findRefs(where: TortoiseClauses<T>, limit?: number,
+                         orderBy?: [string, OrderByDirection]): Promise<DocumentReference[]> {
     let collectionRes: Query = this.app.firestore().collection(this.collection);
     const queries = buildQueries<T>(where as any);
 
@@ -96,18 +115,7 @@ export class FirestoreRepository<T> {
 
     if (limit) collectionRes = collectionRes.limit(limit);
 
-
     const snaps = await collectionRes.get();
-    return snaps.docs.map(doc => ({ uid: doc.id, ...doc.data() })) as (T & FirestoreDocument)[];
-  }
-
-  async findOne(where: TortoiseClauses<T>,
-                orderBy?: [string, OrderByDirection]): Promise<T & FirestoreDocument | null> {
-
-    const docs = await this.find(where, undefined, orderBy);
-
-    if (!docs.length) return null;
-
-    return docs[0];
+    return snaps.docs.map(snap => snap.ref);
   }
 }
