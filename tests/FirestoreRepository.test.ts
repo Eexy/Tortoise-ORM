@@ -1,16 +1,14 @@
 import "dotenv/config";
 import * as admin from "firebase-admin";
 import { app } from "firebase-admin";
-import { initializeTortoiseApp } from "../src/lib/initializeTortoiseApp";
-import { FirestoreRepository } from "../src/lib/FirestoreRepository";
+import { initializeTortoiseApp } from "../src";
+import { FirestoreRepository } from "../src";
 import { clearFirestoreEmulator } from "../src/helpers/clearFirestoreEmulator";
 import App = app.App;
 
 interface User {
   email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
 }
 
 describe("FirestoreRepository", () => {
@@ -52,7 +50,8 @@ describe("FirestoreRepository", () => {
     });
 
     test("should throw error when doc doesn't exist", async () => {
-      await expect(() => repository.update({ email: "test2" }, "user")).rejects.toThrow();
+      const updatedDoc = await repository.update({ email: "test2" }, "user");
+      expect(updatedDoc).toBe(null);
     });
 
     test("should update document", async () => {
