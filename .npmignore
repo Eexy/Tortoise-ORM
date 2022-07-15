@@ -1,0 +1,13 @@
+.prettierrc.json
+.eslintrc.json
+jest.config.json
+tsconfig.dev.json
+tsconfig.prod.json
+tests
+.env
+.firebaserc
+firebase.json
+ui-debug.log
+firestore-debug.log
+database-debug.log
+.idea
