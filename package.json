@@ -9,7 +9,8 @@
     "build": "tsc --project tsconfig.prod.json",
     "emulators": "firebase emulators:start --project demo-tortoise",
     "prepublish": "npm run build",
-    "test": "jest"
+    "jest": "jest",
+    "test": "firebase emulators:exec jest"
   },
   "keywords": [
     "firebase",

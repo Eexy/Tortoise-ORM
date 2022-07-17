@@ -1,7 +1,7 @@
-import { getTortoiseStorage } from "../src/lib/getTortoiseStorage";
-import firebase from "firebase/compat";
-import { initializeTortoiseApp } from "../src/lib/initializeTortoiseApp";
-import App = firebase.app.App;
+import { getTortoiseStorage } from "../src";
+import { initializeTortoiseApp } from "../src";
+import { app } from "firebase-admin";
+import App = app.App;
 
 describe("initializeTortoiseApp", () => {
   test("should throw error if app already exist", () => {
