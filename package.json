@@ -11,7 +11,12 @@
     "prepublish": "npm run build",
     "test": "jest"
   },
-  "keywords": [],
+  "keywords": [
+    "firebase",
+    "firestore",
+    "typescript",
+    "wrapper"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
