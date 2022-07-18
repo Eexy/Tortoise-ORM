@@ -52,7 +52,48 @@ export class FirestoreRepository<T> {
     await ref.set(sanitizeData(data));
     const res = await ref.get();
     return { uid: ref.id, ...res.data() } as TortoiseDocument<T>;
+
   }
+
+  /**
+   * Create new firestore documents by using firestore batch
+   * @param {T[]} data - array of data for each document
+   * @param {string[]} [uids] - array of uids for new document
+   * @throws Throw error when invalid data format
+   * @throws Throw error when array of provided uids is not the same length as data's length
+   * @throws Throw error when data array is more than 500 documents
+   * @returns {Promise<TortoiseDocument<T[]>>} return newly created documents
+   */
+  private async createBatch(data: T[],
+                            uids?: string[]): Promise<TortoiseDocument<T>[]> {
+    if (uids && data.length !== uids.length) throw new Error("You must provide as many uids as you provided document's data");
+
+    if(data.length > 500) throw new Error("You ")
+
+    const batch = this.app.firestore().batch();
+    const refs: DocumentReference[] = [];
+
+    for (let i = 0; i < data.length; i++) {
+      if (!this.isValidDocFormat(data[i])) {
+        throw new Error("Invalid data format for new document. Data must be an object");
+      }
+
+      const ref = (uids && uids[i]) ? this.getDocRefWithUid(uids[i]) : this.getDocRef();
+      batch.set(ref, data[i]);
+      refs.push(ref);
+    }
+
+    await batch.commit();
+
+    const docs: TortoiseDocument<T>[] = [];
+    for (const ref of refs) {
+      const snap = await ref.get();
+      docs.push({ uid: ref.id, ...snap.data() } as TortoiseDocument<T>);
+    }
+
+    return docs;
+  }
+
 
   /**
    * Check that data is an object
