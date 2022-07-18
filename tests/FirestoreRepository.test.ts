@@ -1,8 +1,7 @@
 import "dotenv/config";
 import * as admin from "firebase-admin";
 import { app } from "firebase-admin";
-import { initializeTortoiseApp } from "../src";
-import { FirestoreRepository } from "../src";
+import { FirestoreRepository, initializeTortoiseApp } from "../src";
 import { clearFirestoreEmulator } from "../src/helpers/clearFirestoreEmulator";
 import App = app.App;
 
@@ -41,6 +40,35 @@ describe("FirestoreRepository", () => {
 
       expect(doc).not.toBe(null);
       expect(doc).toHaveProperty("uid", "user");
+    });
+  });
+
+  describe("createBatch", () => {
+    afterEach(async () => {
+      await clearFirestoreEmulator();
+    });
+
+    test("should throw error when array of uids is not the same length as array of data", async () => {
+      await expect(repository.createBatch([{ email: "test" }], [])).rejects.toThrow();
+    });
+
+    test("should throw error when more than 500 element", async () => {
+      const data: User[] = [];
+      for (let i = 0; i < 501; i++) {
+        data.push({ email: "i" });
+      }
+      await expect(repository.createBatch(data)).rejects.toThrow();
+    });
+
+    test("should create documents", async () => {
+      const data: User[] = [];
+      for (let i = 0; i < 200; i++) {
+        data.push({ email: `${i}` });
+      }
+
+      const docs = await repository.createBatch(data);
+
+      expect(docs.length).toBe(200);
     });
   });
 

@@ -64,11 +64,11 @@ export class FirestoreRepository<T> {
    * @throws Throw error when data array is more than 500 documents
    * @returns {Promise<TortoiseDocument<T[]>>} return newly created documents
    */
-  private async createBatch(data: T[],
-                            uids?: string[]): Promise<TortoiseDocument<T>[]> {
+  async createBatch(data: T[],
+                    uids?: string[]): Promise<TortoiseDocument<T>[]> {
     if (uids && data.length !== uids.length) throw new Error("You must provide as many uids as you provided document's data");
 
-    if(data.length > 500) throw new Error("You ")
+    if (data.length > 500) throw new Error("You ");
 
     const batch = this.app.firestore().batch();
     const refs: DocumentReference[] = [];
