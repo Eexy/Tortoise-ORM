@@ -1,4 +1,4 @@
-import { sanitizeData } from "../src/lib/sanitizeData";
+import { sanitizeData } from "../src";
 
 describe("sanitizeData", () => {
   test("should return object without undefined", () => {

@@ -1,6 +1,6 @@
-import { buildQueries } from "../src/lib/buildQueries";
-import { isGreaterThan, isIn } from "../src/lib/queries";
-import { TortoiseQuery } from "../src/types/TortoiseClauses";
+import { buildQueries } from "../src";
+import { isGreaterThan, isIn } from "../src";
+import { TortoiseQuery } from "../src";
 
 
 describe("buildQueries", () => {
