@@ -4,11 +4,11 @@ import App = app.App;
 
 /**
  * Get app by name
- * @param {string} appName
+ * @param {string} [appName=admin]
  * @throws Throw error when app doesn't exist
  * @returns {App}
  */
-export function getTortoiseApp(appName: string): App {
+export function getTortoiseApp(appName: string = "admin"): App {
   const storage = getTortoiseStorage();
 
   if (!storage[appName]) {
