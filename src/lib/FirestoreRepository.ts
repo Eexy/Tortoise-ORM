@@ -38,13 +38,13 @@ export class FirestoreRepository<T> {
    * Create new firestore document
    * @param {T} data - data for new document
    * @param {string} [uid] - uid to use for new document
-   * @throws Throw error when invalid data format
+   * @throws Throw error when invalid data isn't an object with keys
    * @returns {Promise<TortoiseDocument<T>>} return the newly created document
    */
   async create(data: T,
                uid?: string): Promise<TortoiseDocument<T>> {
     if (!this.isValidDocFormat(data)) {
-      throw new Error("Invalid data format for new document. Data must be an object");
+      throw new Error("Invalid data format for new document. Data must be an object with keys");
     }
 
     const ref = uid ? this.getDocRefWithUid(uid) : this.getDocRef();
@@ -106,7 +106,7 @@ export class FirestoreRepository<T> {
 
     if (Array.isArray(data)) return false;
 
-    return typeof data === "object";
+    return typeof data === "object" && Object.keys(data).length !== 0;
   }
 
   /**
