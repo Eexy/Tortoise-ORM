@@ -2,7 +2,8 @@
   "extends": "./tsconfig.dev.json",
   "exclude": [
     "tests/**",
-    "src/helpers"
+    "src/helpers",
+    "dist"
   ],
   "compilerOptions": {
     "rootDir": "./src",
