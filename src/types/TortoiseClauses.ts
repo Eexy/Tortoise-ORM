@@ -1,6 +1,4 @@
 import { FirebaseBaseType } from "./FirebaseType";
-import { firestore } from "firebase-admin";
-import WhereFilterOp = firestore.WhereFilterOp;
 
 export type TortoiseClauses<T> = {
   [k in keyof Partial<T>]: TortoiseClause<T[k]>;
@@ -12,9 +10,21 @@ export type TortoiseClause<T> =
   | TortoiseClauses<T>
 
 export interface Condition {
-  cond: WhereFilterOp,
+  cond: TortoiseFilterOp,
   value: any
 }
+
+export type TortoiseFilterOp =
+  "=="
+  | "<"
+  | "<="
+  | ">"
+  | ">="
+  | "in"
+  | "not-in"
+  | "!="
+  | "array-contains-any"
+  | "array-contains"
 
 export interface TortoiseQuery extends Condition {
   path: string;

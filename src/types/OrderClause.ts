@@ -1,4 +1,3 @@
-import { firestore } from "firebase-admin";
-import OrderByDirection = firestore.OrderByDirection;
+export type OrderClause = [string, OrderFilter]
 
-export type OrderClause = [string, OrderByDirection]
+export type OrderFilter = "asc" | "desc"
