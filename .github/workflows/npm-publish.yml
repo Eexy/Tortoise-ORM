@@ -3,7 +3,7 @@
 
 name: Node.js Package
 
-on: 
+on:
   push
 
 jobs:
@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
+      - run: npm ci
       - run: npm run build
       - run: npm publish
         env:
