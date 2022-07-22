@@ -8,6 +8,7 @@ import { OrderClause } from "../types/OrderClause";
 import App = app.App;
 import Query = firestore.Query;
 import DocumentReference = firestore.DocumentReference;
+import CollectionReference = firestore.CollectionReference;
 
 /**
  * @template T
@@ -196,12 +197,12 @@ export class FirestoreRepository<T> {
   /**
    * Find documents matching where clauses
    * @template T
-   * @param {TortoiseClauses<T>} where - conditions to apply when searching for documents
+   * @param {TortoiseClauses<T>} [where] - conditions to apply when searching for documents
    * @param {number} [limit] - max documents to find
    * @param {OrderClause} [orderBy] - order clause
    * @returns {Promise<TortoiseDocument<T>>} return documents matching conditions
    */
-  async find(where: TortoiseClauses<T>,
+  async find(where?: TortoiseClauses<T>,
              limit?: number,
              orderBy?: OrderClause): Promise<TortoiseDocument<T>[]> {
     const refs = await this.findRefs(where, limit, orderBy);
@@ -291,9 +292,9 @@ export class FirestoreRepository<T> {
    * @param {OrderClause} [orderBy] - order clause
    * @returns {Promise<TortoiseDocument<DocumentReference[]>} return document's references that match conditions
    * */
-  private async findRefs(where: TortoiseClauses<T>, limit?: number,
+  private async findRefs(where?: TortoiseClauses<T>, limit?: number,
                          orderBy?: OrderClause): Promise<DocumentReference[]> {
-    let collectionRes: Query = this.app.firestore().collection(this.collection);
+    let collectionRes: CollectionReference | Query = this.app.firestore().collection(this.collection);
     const queries = buildQueries<T>(where as any);
 
     for (const query of queries) {
