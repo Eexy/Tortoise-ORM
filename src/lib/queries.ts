@@ -29,7 +29,7 @@ export function isGreaterThan(x: number): Condition {
   };
 }
 
-export function isDifferent(x: number): Condition {
+export function isDifferent(x: number | string | boolean | null): Condition {
   return {
     cond: "!=",
     value: x,
